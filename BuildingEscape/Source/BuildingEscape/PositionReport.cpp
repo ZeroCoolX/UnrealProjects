@@ -20,9 +20,10 @@ void UPositionReport::BeginPlay()
 {
 	Super::BeginPlay();
 
-    FString objectName = GetOwner()->GetName();
-    
-    UE_LOG(LogTemp, Warning, TEXT("Position Report for %s"), *objectName);
+    FString objName = GetOwner()->GetName();//this being the object with the component attached
+    FString objPos = "("+GetOwner()->GetTransform().GetLocation().ToString()+")";
+    UE_LOG(LogTemp, Warning, TEXT("Checking because wut"));
+    UE_LOG(LogTemp, Warning, TEXT("%s is at position %s"), *objName, *objPos);
 	
 }
 
