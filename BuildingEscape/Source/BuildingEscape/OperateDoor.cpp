@@ -20,7 +20,9 @@ UOperateDoor::UOperateDoor()
 void UOperateDoor::BeginPlay()
 {
 	Super::BeginPlay();
+}
 
+void UOperateDoor::OpenDoor(){
     //get owner
     AActor* owner = GetOwner();
     
@@ -30,7 +32,6 @@ void UOperateDoor::BeginPlay()
     //set door rotation
     UE_LOG(LogTemp, Warning, TEXT("Setting rotation"));
     owner->SetActorRotation(newRotation);
-    
 }
 
 
@@ -39,6 +40,13 @@ void UOperateDoor::TickComponent( float DeltaTime, ELevelTick TickType, FActorCo
 {
 	Super::TickComponent( DeltaTime, TickType, ThisTickFunction );
 
-	// ...
+	//Poll the trigger every frame
+    if(pressurePlate->IsOverlappingActor(actorThatOpens)){
+    
+    }
+   /* if(pressurePlate->IsOverlappingActor(actorThatOpens)){
+        UE_LOG(LogTemp, Warning, TEXT("Opening door because the trigger was activated!!"));
+        OpenDoor();
+    }*/
 }
 
