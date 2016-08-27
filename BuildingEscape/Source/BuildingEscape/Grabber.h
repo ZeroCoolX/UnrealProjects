@@ -23,7 +23,27 @@ public:
 
     
 private:
+    //how far ahead of the player we can reach
     float playerReach = 100.f;
-		
+    
+    UPhysicsHandleComponent* physicsHandle = nullptr;// nullptr is mermory address 0
+    
+    UInputComponent* inputComponent = nullptr;
+    
+    //raycast and grab what's in reach
+    void Grab();
+    
+    //Called when grab is released
+    void Released();
+    
+    //find attached physics handle
+    void SetupPhysicsHandleComponent();
+    
+    //find the input component
+    void SetupInputComponent();
+    
+    //return hit for first physics body in reach
+    const FHitResult GetFirstPhysicsBody();
+    
 	
 };
