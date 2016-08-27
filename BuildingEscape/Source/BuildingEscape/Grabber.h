@@ -45,5 +45,10 @@ private:
     //return hit for first physics body in reach
     const FHitResult GetFirstPhysicsBody();
     
+    //get raycast from player to its reach outward
+    FVector CalculateReachLineEnd();
+    
+    //get the players location
+    FVector GetPlayerLocation();
 	
 };

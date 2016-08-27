@@ -31,7 +31,7 @@ void UGrabber::BeginPlay()
 void UGrabber::SetupInputComponent(){
     //Look for attached input component
     inputComponent = GetOwner()->FindComponentByClass<UInputComponent>();
-    if(!inputComponent){
+    if(inputComponent == nullptr){
         //physics hangle is not found
         UE_LOG(LogTemp, Error, TEXT("%s missing input component"), *GetOwner()->GetName());
     }else{
@@ -43,7 +43,7 @@ void UGrabber::SetupInputComponent(){
 void UGrabber::SetupPhysicsHandleComponent(){
     ///Look for attached physics handle
     physicsHandle = GetOwner()->FindComponentByClass<UPhysicsHandleComponent>();
-    if(!physicsHandle){
+    if(physicsHandle == nullptr){
         //physics hangle is not found
         UE_LOG(LogTemp, Error, TEXT("%s missing physics handle component"), *GetOwner()->GetName());
     }
@@ -51,8 +51,6 @@ void UGrabber::SetupPhysicsHandleComponent(){
 
 //when right mouse button is pressed
 void UGrabber::Grab(){
-    UE_LOG(LogTemp, Warning, TEXT("Grabbing"));
-    
     //Line trace and see if we reach any ators with physucs body collision
     auto hitResult = GetFirstPhysicsBody();
     auto componentToGrab = hitResult.GetComponent();
@@ -60,32 +58,21 @@ void UGrabber::Grab(){
     
     //Attach the physics handle
     if(actorHit){
-    physicsHandle->GrabComponent(componentToGrab,
-                                 NAME_None,
+        physicsHandle->GrabComponent(componentToGrab,
+                                 NAME_None,//no bones needed
                                  componentToGrab->GetOwner()->GetActorLocation(),
-                                 true
+                                 true//allow rotation
                                  );
     }
 }
 
 //when right mouse button is released
 void UGrabber::Released(){
-    UE_LOG(LogTemp, Warning, TEXT("Release"));
-    
     //release physics body
     physicsHandle->ReleaseComponent();
 }
 
 const FHitResult UGrabber::GetFirstPhysicsBody(){
-    FVector playerLoc;
-    FRotator playerRot;
-    
-    ///Get player view point this tick
-    GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(OUT playerLoc, OUT playerRot);
-    
-    FVector lineTraceEnd = playerLoc + playerRot.Vector() * playerReach;
-
-    
     //Setup query parameters
     FCollisionQueryParams traceParams(FName(TEXT("")), false, GetOwner());
     
@@ -93,8 +80,8 @@ const FHitResult UGrabber::GetFirstPhysicsBody(){
     //Ray-cast outward till reach distance (need priv var for dist)
     GetWorld()->LineTraceSingleByObjectType(
                                             OUT lineTraceHit,
-                                            playerLoc,
-                                            lineTraceEnd,
+                                            GetPlayerLocation(),
+                                            CalculateReachLineEnd(),
                                             FCollisionObjectQueryParams(ECollisionChannel::ECC_PhysicsBody),
                                             traceParams
                                             );
@@ -106,22 +93,33 @@ const FHitResult UGrabber::GetFirstPhysicsBody(){
     return lineTraceHit;
 }
 
-
-// Called every frame
-void UGrabber::TickComponent( float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction )
-{
-	Super::TickComponent( DeltaTime, TickType, ThisTickFunction );
-    
+FVector UGrabber::CalculateReachLineEnd(){
     FVector playerLoc;
     FRotator playerRot;
     
     ///Get player view point this tick
     GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(OUT playerLoc, OUT playerRot);
     
-    FVector lineTraceEnd = playerLoc + playerRot.Vector() * playerReach;
+    return playerLoc + playerRot.Vector() * playerReach;
+}
+
+FVector UGrabber::GetPlayerLocation(){
+    FVector playerLoc;
+    FRotator playerRot;
+    
+    ///Get player view point this tick
+    GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(OUT playerLoc, OUT playerRot);
+    return playerLoc;
+}
+
+
+// Called every frame
+void UGrabber::TickComponent( float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction )
+{
+	Super::TickComponent( DeltaTime, TickType, ThisTickFunction );
     
     if(physicsHandle->GrabbedComponent){//if we're grabbing somehting currently, move it along the raycast
-        physicsHandle->SetTargetLocation(lineTraceEnd);
+        physicsHandle->SetTargetLocation(CalculateReachLineEnd());
     }
 }
 
