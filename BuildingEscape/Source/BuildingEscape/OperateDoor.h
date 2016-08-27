@@ -35,7 +35,6 @@ private:
     UPROPERTY(EditAnywhere)
     ATriggerVolume* pressurePlate;
     
-    AActor* actorThatOpens;//remember pawn inherits from actor
     AActor* owner;
     
     UPROPERTY(EditAnywhere)
@@ -43,5 +42,7 @@ private:
     
     float lastDoorOpenTime;
     
+    //float triggerMassThreshhold = 100.f;
     
+    float GetTotalMassOnPlate();
 };

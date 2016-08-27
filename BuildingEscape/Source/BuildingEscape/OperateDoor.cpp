@@ -3,6 +3,8 @@
 #include "BuildingEscape.h"
 #include "OperateDoor.h"
 
+#define OUT
+
 
 // Sets default values for this component's properties
 UOperateDoor::UOperateDoor()
@@ -23,9 +25,6 @@ void UOperateDoor::BeginPlay()
     
     //get owner which many methods need
     owner = GetOwner();
-    
-    //find the player controller
-    actorThatOpens = GetWorld()->GetFirstPlayerController()->GetPawn();//pawn IS A actor
 }
 
 void UOperateDoor::OpenDoor(){
@@ -40,6 +39,21 @@ void UOperateDoor::CloseDoor(){
     owner->SetActorRotation(FRotator(0.0f, 0.0f, 0.0f));
 }
 
+float UOperateDoor::GetTotalMassOnPlate(){
+    float totalMass = 0.f;
+    TArray<AActor *> actorsOnPlate;
+    
+    //find all overlapping actors
+    pressurePlate->GetOverlappingActors(OUT actorsOnPlate);
+    
+    //iterate addign all their masses
+    for(const auto& actor : actorsOnPlate){
+        totalMass += actor->FindComponentByClass<UPrimitiveComponent>()->GetMass();
+        UE_LOG(LogTemp, Warning, TEXT("%s on pressure plate"), *actor->GetName());
+    }
+    return totalMass;
+}
+
 
 // Called every frame
 void UOperateDoor::TickComponent( float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction )
@@ -47,7 +61,7 @@ void UOperateDoor::TickComponent( float DeltaTime, ELevelTick TickType, FActorCo
     Super::TickComponent( DeltaTime, TickType, ThisTickFunction );
     
     //Poll the trigger every frame
-    if(pressurePlate->IsOverlappingActor(actorThatOpens)){
+    if(GetTotalMassOnPlate() >= 40.f){
         UE_LOG(LogTemp, Warning, TEXT("Opening door because the trigger was activated!!"));
         OpenDoor();
         lastDoorOpenTime = GetWorld()->GetTimeSeconds();
