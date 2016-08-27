@@ -36,7 +36,7 @@ void UOperateDoor::OpenDoor(){
 
 void UOperateDoor::CloseDoor(){
     //set door rotation
-    UE_LOG(LogTemp, Warning, TEXT("Closing door"));
+    //UE_LOG(LogTemp, Warning, TEXT("Closing door"));
     owner->SetActorRotation(FRotator(0.0f, 0.0f, 0.0f));
 }
 
@@ -55,7 +55,7 @@ void UOperateDoor::TickComponent( float DeltaTime, ELevelTick TickType, FActorCo
     
     //check if its time to close the door
     if(lastDoorOpenTime+doorCloseDelay < GetWorld()->GetTimeSeconds()){
-        UE_LOG(LogTemp, Warning, TEXT("Closing door because it was open too long"));
+        //UE_LOG(LogTemp, Warning, TEXT("Closing door because it was open too long"));
         CloseDoor();
     }
     
