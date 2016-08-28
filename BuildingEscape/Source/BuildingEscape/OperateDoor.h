@@ -5,6 +5,9 @@
 #include "Components/ActorComponent.h"
 #include "OperateDoor.generated.h"
 
+//used for sending listenable events for blueprint interaction
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FDoorEvent);
+
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class BUILDINGESCAPE_API UOperateDoor : public UActorComponent
@@ -21,28 +24,20 @@ public:
     // Called every frame
     virtual void TickComponent( float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction ) override;
     
-    //opens a door 90 degrees
-    void OpenDoor();
+    UPROPERTY(BlueprintAssignable)
+    FDoorEvent OnOpen;
     
-    //close a door 90 degrees
-    void CloseDoor();
-    
+    UPROPERTY(BlueprintAssignable)
+    FDoorEvent OnClose;
     
 private:
-    UPROPERTY(VisibleAnywhere)
-    float openAngle = 90.0f;
-    
     UPROPERTY(EditAnywhere)
     ATriggerVolume* pressurePlate;
     
     AActor* owner;
     
     UPROPERTY(EditAnywhere)
-    float doorCloseDelay = 1.0f;
-    
-    float lastDoorOpenTime;
-    
-    //float triggerMassThreshhold = 100.f;
+    float triggerMass = 30.f;
     
     float GetTotalMassOnPlate();
 };

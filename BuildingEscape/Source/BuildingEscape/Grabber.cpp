@@ -56,6 +56,9 @@ void UGrabber::Grab(){
     auto componentToGrab = hitResult.GetComponent();
     auto actorHit = hitResult.GetActor();//used for redundant check to make sure there IS an actor to atttach to
     
+    //nullptr check
+    if(!physicsHandle){return;}
+    
     //Attach the physics handle
     if(actorHit){
         physicsHandle->GrabComponent(componentToGrab,
@@ -68,6 +71,9 @@ void UGrabber::Grab(){
 
 //when right mouse button is released
 void UGrabber::Released(){
+    //nullptr check
+    if(!physicsHandle){return;}
+    
     //release physics body
     physicsHandle->ReleaseComponent();
 }
@@ -117,6 +123,9 @@ FVector UGrabber::GetPlayerLocation(){
 void UGrabber::TickComponent( float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction )
 {
 	Super::TickComponent( DeltaTime, TickType, ThisTickFunction );
+    
+    //nullptr check
+    if(!physicsHandle){return;}
     
     if(physicsHandle->GrabbedComponent){//if we're grabbing somehting currently, move it along the raycast
         physicsHandle->SetTargetLocation(CalculateReachLineEnd());

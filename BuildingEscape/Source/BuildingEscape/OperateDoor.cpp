@@ -25,24 +25,20 @@ void UOperateDoor::BeginPlay()
     
     //get owner which many methods need
     owner = GetOwner();
-}
-
-void UOperateDoor::OpenDoor(){
-    //set door rotation
-    UE_LOG(LogTemp, Warning, TEXT("Opening door"));
-    owner->SetActorRotation(FRotator(0.0f, openAngle, 0.0f));
-}
-
-void UOperateDoor::CloseDoor(){
-    //set door rotation
-    //UE_LOG(LogTemp, Warning, TEXT("Closing door"));
-    owner->SetActorRotation(FRotator(0.0f, 0.0f, 0.0f));
+    
+    if(!pressurePlate){
+        //physics hangle is not found
+        UE_LOG(LogTemp, Error, TEXT("%s missing pressure plate"), *GetOwner()->GetName());
+    }
 }
 
 float UOperateDoor::GetTotalMassOnPlate(){
     float totalMass = 0.f;
     TArray<AActor *> actorsOnPlate;
     
+    //nullptr check
+    if(!pressurePlate){return totalMass;}
+
     //find all overlapping actors
     pressurePlate->GetOverlappingActors(OUT actorsOnPlate);
     
@@ -61,16 +57,11 @@ void UOperateDoor::TickComponent( float DeltaTime, ELevelTick TickType, FActorCo
     Super::TickComponent( DeltaTime, TickType, ThisTickFunction );
     
     //Poll the trigger every frame
-    if(GetTotalMassOnPlate() >= 40.f){
+    if(GetTotalMassOnPlate() >= triggerMass){
         UE_LOG(LogTemp, Warning, TEXT("Opening door because the trigger was activated!!"));
-        OpenDoor();
-        lastDoorOpenTime = GetWorld()->GetTimeSeconds();
-    }
-    
-    //check if its time to close the door
-    if(lastDoorOpenTime+doorCloseDelay < GetWorld()->GetTimeSeconds()){
-        //UE_LOG(LogTemp, Warning, TEXT("Closing door because it was open too long"));
-        CloseDoor();
+        OnOpen.Broadcast();
+    }else{
+        OnClose.Broadcast();
     }
     
 }
